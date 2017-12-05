@@ -22,6 +22,27 @@ public class Main {
 		int delivery = 0;
 		int custLost = 0;
 		int line = 0;
+		int customerNum = 1;
+		int orderNum = 0;
+		/*
+		 * 1. Bun
+		 * 2. Patty
+		 * 3. Lettuce
+		 * 4. Tomato
+		 * 5. Onion
+		 * 6. Cheese
+		 */
+		Counter foodLost = new Counter();
+		/*
+		 * 1. Number One
+		 * 2. Number Two
+		 * 3. Number Three
+		 * 4. Number Four
+		 * 5. Number Five
+		 * 6. Number Six
+		 */
+		Counter itemsOrdered = new Counter();
+		
 		Random rnd = new Random(System.currentTimeMillis());
 
 		// Make all of the menu options
@@ -87,27 +108,40 @@ public class Main {
 		
 		QueueFixedSize<Integer> customers = new QueueFixedSize<Integer>(50);
 		
-		while (date < 1231) //only runs till the end of December
+		while (date <= 1231) //only runs till the end of December
 		{
 			hour = 10;
+			customerNum = 1;
+			foodLost.clearAll();
+			itemsOrdered.clearAll();
+			
 			while (hour <= 19) //only open from 1000 - 1900;
 			{
-				line = rnd.nextInt(101);
-				if (line > 50)
+				line = 1 + rnd.nextInt(100); // how many customers are showing up that hour ( 1-100)
+				if (line > 50) // the queue can only hold 50 people, anyone over 50 is a walk away. adds the excess to the lost customer list and caps at 50.
 				{
-					custLost = line - 50;
+					custLost += line - 50;
 					line = 50;
 				}
 				
-				for (int i = 0; i < line; i++)
+				for (int i = 0; i < line; i++) //add customers and their order number to the queue
 				{
 						customers.enqueue(1 + rnd.nextInt(6));
 				}
 				
-				
+				while(!customers.isEmpty()) // empty the queue/customers ordering
+				{
+					try {
+						orderNum = customers.dequeue();
+					} catch (EmptyQueueException e) {
+						e.printStackTrace();
+					}
+					itemsOrdered.increment(orderNum);
+				}
 				
 				hour ++;
 			}
+			date++;
 		}
 	}
 

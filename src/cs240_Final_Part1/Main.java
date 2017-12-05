@@ -5,6 +5,8 @@ package cs240_Final_Part1;
 
 import cs240_Final_Part1.ListLinked;
 import cs240_Final_Part1.StackLinked;
+
+import java.util.EmptyStackException;
 import java.util.Random;
 
 /**
@@ -38,6 +40,7 @@ public class Main {
 	 * 1. Bun 2. Patty 3. Lettuce 4. Tomato 5. Onion 6. Cheese
 	 */
 	private static Counter foodLost = new Counter();
+	private static boolean outOfFood = false;
 
 	/**
 	 * @param args
@@ -79,6 +82,7 @@ public class Main {
 			foodLost.clearAll(); // clear food lost for the new day
 			itemsOrdered.clearAll(); // clear what items ordered for the new day
 			custDict.clear(); // clear the customer dictionary for the new day
+			custLost = 0; // clear customers lost from the previous day for the new day
 
 			while (hour <= 19) // only open from 1000 - 1900;
 			{
@@ -92,7 +96,7 @@ public class Main {
 
 				for (int i = 0; i < line; i++) // add customers and their order number to the queue
 				{
-					//System.out.println(i);
+					// System.out.println(i);
 					customers.enqueue(1 + rnd.nextInt(6));
 				}
 
@@ -103,76 +107,138 @@ public class Main {
 					} catch (EmptyQueueException e) {
 						e.printStackTrace();
 					}
-					itemsOrdered.increment(orderNum);
-					custDict.add(customerNum, orderNum);
-					customerNum++;
-					 switch (orderNum)
-					 {
-					 case 1:
-						 bun.pop();
-						 patty.pop();
-						 lettuce.pop();
-						 tomato.pop();
-						 onion.pop();
-						 break;
-					 case 2:
-						 cheese.pop();
-						 bun.pop();
-						 patty.pop();
-						 lettuce.pop();
-						 tomato.pop();
-						 onion.pop();
-						 break;
-					 case 3:
-						 lettuce.pop();
-						 lettuce.pop(); // GOT EMPTY STACK EXCEPTION NEED TO MAKE CUSTOMERS GO AWAY WHEN SOMETHING THEY ORDERED ISNT AVAILABLE
-						 tomato.pop();
-						 onion.pop();
-						 break;
-					 case 4:
-						 bun.pop();
-						 patty.pop();
-						 lettuce.pop();
-						 tomato.pop();
-						 break;
-					 case 5:
-						 cheese.pop();
-						 bun.pop();
-						 patty.pop();
-						 lettuce.pop();
-						 tomato.pop();
-						 break;
-					 case 6:
-						 bun.pop();
-						 patty.pop();
-						 lettuce.pop();
-						 onion.pop();
-						 break;
-					 }
+					try {
+						switch (orderNum) {
+						case 1:
+							lettuce.pop();
+							tomato.pop();
+							onion.pop();
+							bun.pop();
+							patty.pop();
+							break;
+						case 2:
+							lettuce.pop();
+							tomato.pop();
+							onion.pop();
+							bun.pop();
+							patty.pop();
+							cheese.pop();
+							break;
+						case 3:
+							lettuce.pop();
+							lettuce.pop();
+							tomato.pop();
+							onion.pop();
+							break;
+						case 4:
+							lettuce.pop();
+							tomato.pop();
+							bun.pop();
+							patty.pop();
+							break;
+						case 5:
+							lettuce.pop();
+							tomato.pop();
+							bun.pop();
+							patty.pop();
+							cheese.pop();
+							break;
+						case 6:
+							lettuce.pop();
+							onion.pop();
+							bun.pop();
+							patty.pop();
+							break;
+						}
+					} catch (EmptyStackException e) {
+						outOfFood = true;
+					}
+					if (outOfFood == false) {
+						itemsOrdered.increment(orderNum);
+						custDict.add(customerNum, orderNum);
+						customerNum++;
+					} else {
+						custLost++;
+						outOfFood = false;
+					}
 				}
 				hour++;
 			}
-			System.out.println("Lost customer: " + custLost);
-			
+			System.out.println("---------------  December " + (date % 100) + "   ---------------");
+			System.out.println("Lost customer: " + custLost + "\n");
+
+			checkExpiration();
+
 			System.out.println("Buns wasted: " + foodLost.get(1));
 			System.out.println("Patties wasted: " + foodLost.get(2));
 			System.out.println("Lettuce wasted: " + foodLost.get(3));
 			System.out.println("Tomatoes wasted: " + foodLost.get(4));
 			System.out.println("Onions wasted: " + foodLost.get(5));
-			System.out.println("Cheese wasted: " + foodLost.get(6));
-			
+			System.out.println("Cheese wasted: " + foodLost.get(6) + "\n");
+
 			System.out.println("#1's ordered: " + itemsOrdered.get(1));
 			System.out.println("#2's ordered: " + itemsOrdered.get(2));
 			System.out.println("#3's ordered: " + itemsOrdered.get(3));
 			System.out.println("#4's ordered: " + itemsOrdered.get(4));
 			System.out.println("#5's ordered: " + itemsOrdered.get(5));
-			System.out.println("#6's ordered: " + itemsOrdered.get(6));
-			
-			for(int i =1; i <= custDict.getSize(); i++)
-			{
+			System.out.println("#6's ordered: " + itemsOrdered.get(6) + "\n");
+
+			for (int i = 1; i <= custDict.getSize(); i++) {
 				System.out.println("Customer " + i + " -> #" + custDict.getValue(i));
 			}
+			System.out.println("\n");
 			date++;
+		}
+	}
+
+	private static void checkExpiration() {
+		boolean good = false;
+		while (!bun.isEmpty() && good == false) {
+			if (bun.peek() <= date) {
+				bun.pop();
+				foodLost.increment(1);
+			} else
+				good = true;
+		}
+		good = false;
+		while (!patty.isEmpty() && good == false) {
+			if (patty.peek() <= date) {
+				patty.pop();
+				foodLost.increment(2);
+			} else
+				good = true;
+		}
+		good = false;
+		while (!lettuce.isEmpty() && good == false) {
+			if (lettuce.peek() <= date) {
+				lettuce.pop();
+				foodLost.increment(3);
+			} else
+				good = true;
+		}
+		good = false;
+		while (!tomato.isEmpty() && good == false) {
+			if (tomato.peek() <= date) {
+				tomato.pop();
+				foodLost.increment(4);
+			} else
+				good = true;
+		}
+		good = false;
+		while (!onion.isEmpty() && good == false) {
+			if (onion.peek() <= date) {
+				onion.pop();
+				foodLost.increment(5);
+			} else
+				good = true;
+		}
+		good = false;
+		while (!cheese.isEmpty() && good == false) {
+			if (cheese.peek() <= date) {
+				cheese.pop();
+				foodLost.increment(6);
+			} else
+				good = true;
 		}
 	}
 
@@ -206,7 +272,7 @@ public class Main {
 		}
 
 		// add new, fresh inventory
-		delivery = rnd.nextInt(4) + date; // when the next delivery date will be.
+		delivery = rnd.nextInt(4) + date + 3; // when the next delivery date will be.
 
 		for (int i = 0; i < rnd.nextInt(300) + 700; i++) // adds between 700-1000 items of randomized food tot he stacks
 		{
@@ -245,37 +311,37 @@ public class Main {
 		// Move all the old inventory back to the stack while discarding the expired
 		// food and incrementing the corresponding counter
 		while (!tBun.isEmpty()) {
-			if (tBun.peek() <= date)
+			if (tBun.peek() >= date)
 				bun.push(tBun.pop());
 			else
 				foodLost.increment(1);
 		}
 		while (!tPatty.isEmpty()) {
-			if (tPatty.peek() <= date)
+			if (tPatty.peek() >= date)
 				patty.push(tPatty.pop());
 			else
 				foodLost.increment(2);
 		}
 		while (!tLettuce.isEmpty()) {
-			if (tLettuce.peek() <= date)
+			if (tLettuce.peek() >= date)
 				lettuce.push(tLettuce.pop());
 			else
 				foodLost.increment(3);
 		}
 		while (!tTomato.isEmpty()) {
-			if (tTomato.peek() <= date)
+			if (tTomato.peek() >= date)
 				tomato.push(tTomato.pop());
 			else
 				foodLost.increment(4);
 		}
 		while (!tOnion.isEmpty()) {
-			if (tOnion.peek() <= date)
+			if (tOnion.peek() >= date)
 				onion.push(tOnion.pop());
 			else
 				foodLost.increment(5);
 		}
 		while (!tCheese.isEmpty()) {
-			if (tCheese.peek() <= date)
+			if (tCheese.peek() >= date)
 				cheese.push(tCheese.pop());
 			else
 				foodLost.increment(6);

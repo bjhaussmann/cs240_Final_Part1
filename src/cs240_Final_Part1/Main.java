@@ -274,7 +274,7 @@ public class Main {
 		// add new, fresh inventory
 		delivery = rnd.nextInt(4) + date + 3; // when the next delivery date will be.
 
-		for (int i = 0; i < rnd.nextInt(300) + 700; i++) // adds between 700-1000 items of randomized food tot he stacks
+		for (int i = 0; i < rnd.nextInt(300) + 700; i++) // adds between 700-1000 items of randomized food to the stacks
 		{
 			int ingredient = rnd.nextInt(6);
 

@@ -12,20 +12,23 @@ import java.util.Iterator;
 public class DictionaryLinked<K extends Comparable<? super K>, V> implements DictionaryInterface<K, V> {
 
 	private DictionaryNode<K, V> firstNode;
-	private int numberOfEntries;
+	private DictionaryNode <K, V> lastNode;
 	private int counter;
 
 	public DictionaryLinked() {
 		firstNode = null;
-		numberOfEntries = 0;
+		lastNode = firstNode;
 		counter = 0;
 	}
 
 	@Override
 	public V add(K key, V value) {
-		V result = null;
+		//V result = null;
 
-		DictionaryNode<K, V> currentNode = firstNode;
+		DictionaryNode<K,V> newNode = new DictionaryNode<K,V>(firstNode, key, value);
+		firstNode = newNode;
+		
+		/*DictionaryNode<K, V> currentNode = firstNode;
 		DictionaryNode<K, V> nodeBefore = null;
 
 		while ((currentNode != null) && key.compareTo(currentNode.getKey()) > 0) {
@@ -47,8 +50,8 @@ public class DictionaryLinked<K extends Comparable<? super K>, V> implements Dic
 			}
 			numberOfEntries++;
 		}
-		counter ++;
-		return result;
+*/		counter ++;
+		return value;
 	}
 
 	@Override
@@ -170,17 +173,20 @@ public class DictionaryLinked<K extends Comparable<? super K>, V> implements Dic
 
 	@Override
 	public void clear() {
-		DictionaryNode<K, V> currentNode = firstNode.getNextNode();
-		DictionaryNode <K,V> beforeNode = firstNode;
-
-		while (currentNode != null) {
-			beforeNode.setNextNode(null);
-			currentNode.setKey(null);
-			currentNode.setValue(null);
-			beforeNode = currentNode;
-			currentNode = currentNode.getNextNode();
+		if (counter > 0)
+		{
+			DictionaryNode<K, V> currentNode = firstNode.getNextNode();
+			DictionaryNode <K,V> beforeNode = firstNode;
+	
+			while (currentNode != null) {
+				beforeNode.setNextNode(null);
+				currentNode.setKey(null);
+				currentNode.setValue(null);
+				beforeNode = currentNode;
+				currentNode = currentNode.getNextNode();
+			}
+			counter = 0;
 		}
-		counter = 0;
 	}
 
 }

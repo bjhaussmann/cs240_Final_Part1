@@ -21,7 +21,7 @@ public class QueueFixedSize<T> implements QueueInterface<T>{
 		@SuppressWarnings("unchecked")
 		T temp[] = (T[])new Object[size];
 		queue = temp;
-		front = 0;
+		front = -1;
 		back = 0;
 	}
 	
@@ -32,18 +32,10 @@ public class QueueFixedSize<T> implements QueueInterface<T>{
 	 */
 	@Override
 	public void enqueue(T newEntry) {
-		if (back < queue.length - 1)
+		if (front < queue.length)
 		{
-			if((back + 1) != front)	//if next index after current back is empty, then set next index to newEntry and back.
-			{
-				back++;
-				queue[back] = newEntry;
-			}
-		}
-		else if (front != 0)	//check if front is at the beginning of the array, if true, array full, if false, set [0] to newEntry and back.
-		{
-			back = 0;
-			queue[back] = newEntry;
+			front ++;
+			queue[front] = newEntry;
 		}
 		else	//array full. no room left in queue.
 		{
@@ -60,18 +52,10 @@ public class QueueFixedSize<T> implements QueueInterface<T>{
 	public T dequeue() throws EmptyQueueException {
 		if(!isEmpty())
 		{
-		T next = queue[front];
-		queue[front] = null;
-		
-		if (front < queue.length - 1)	//if front is not at the last index, set the next index to front.
-		{
-			front ++;
-		}
-		else	//if front is at the last index, set [0] to front.
-		{
-			front = 0;
-		}
-		return next;
+			T next = queue[front];
+			queue[front] = null;
+			front --;
+			return next;
 		}
 		else
 		{
@@ -85,8 +69,11 @@ public class QueueFixedSize<T> implements QueueInterface<T>{
 	 * @throws	EmptyQueueException	if the queue is empty.
 	 */
 	@Override
-	public T getFront() {
-		return queue[front];
+	public T getFront() throws EmptyQueueException {
+		if (!isEmpty())
+			return queue[front];
+		else
+			throw new EmptyQueueException();
 	}
 
 	/**
@@ -95,7 +82,7 @@ public class QueueFixedSize<T> implements QueueInterface<T>{
 	 */
 	@Override
 	public boolean isEmpty() {
-		if (front == back)
+		if (front == -1)
 		{
 			return true;
 		}
@@ -110,8 +97,7 @@ public class QueueFixedSize<T> implements QueueInterface<T>{
 	 */
 	@Override
 	public void clear() {
-		front = 0;
-		back = 0;
+		front = -1;
 		for (int i = 0; i < queue.length; i++)
 		{
 			queue[i] = null;

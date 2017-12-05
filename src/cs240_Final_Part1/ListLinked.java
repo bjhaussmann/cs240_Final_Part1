@@ -23,9 +23,9 @@ public class ListLinked<T> implements ListInterface<T> {
 	
 	@Override
 	public void add(T newEntry) {
-		Node<T> newNode = new Node<T>(null, newEntry);
-		front.setLink(newNode);
-		front = newNode;
+		Node<T> newNode = new Node<T>(back, newEntry);
+		//front.setLink(newNode);
+		back = newNode;
 		count ++;
 	}
 

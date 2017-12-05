@@ -26,6 +26,12 @@ public class DictionaryNode <K, V> {
 		next = null;
 	}
 
+	public DictionaryNode(DictionaryNode<K, V> node, K key, V value) {
+		this.key = key;
+		this.value = value;
+		next = node;
+		}
+
 	public void setNextNode(DictionaryNode <K, V> node)
 	{
 		next = node;

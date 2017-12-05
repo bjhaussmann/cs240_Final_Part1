@@ -13,63 +13,199 @@ import java.util.Random;
  */
 public class Main {
 
+	// make the stacks for all of the food. The saved integer is the expiration
+	// date.
+	private static StackLinked<Integer> bun = new StackLinked<Integer>();
+	private static StackLinked<Integer> patty = new StackLinked<Integer>();
+	private static StackLinked<Integer> lettuce = new StackLinked<Integer>();
+	private static StackLinked<Integer> tomato = new StackLinked<Integer>();
+	private static StackLinked<Integer> onion = new StackLinked<Integer>();
+	private static StackLinked<Integer> cheese = new StackLinked<Integer>();
+
+	// Make all of the menu options
+	private static ListLinked<String> burger = new ListLinked<String>();
+	private static ListLinked<String> cBurger = new ListLinked<String>();
+	private static ListLinked<String> vegan = new ListLinked<String>();
+	private static ListLinked<String> burgerNO = new ListLinked<String>();
+	private static ListLinked<String> cBurgerNO = new ListLinked<String>();
+	private static ListLinked<String> burgerNT = new ListLinked<String>();
+
+	private static int delivery = 0;
+	private static Random rnd = new Random(System.currentTimeMillis());
+	private static int date = 1201;
+
+	/*
+	 * 1. Bun 2. Patty 3. Lettuce 4. Tomato 5. Onion 6. Cheese
+	 */
+	private static Counter foodLost = new Counter();
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		int date = 1201;
 		int hour = 0;
-		int delivery = 0;
 		int custLost = 0;
 		int line = 0;
 		int customerNum = 1;
 		int orderNum = 0;
+
 		/*
-		 * 1. Bun
-		 * 2. Patty
-		 * 3. Lettuce
-		 * 4. Tomato
-		 * 5. Onion
-		 * 6. Cheese
-		 */
-		Counter foodLost = new Counter();
-		/*
-		 * 1. Number One
-		 * 2. Number Two
-		 * 3. Number Three
-		 * 4. Number Four
-		 * 5. Number Five
-		 * 6. Number Six
+		 * 1. Number One 2. Number Two 3. Number Three 4. Number Four 5. Number Five 6.
+		 * Number Six
 		 */
 		Counter itemsOrdered = new Counter();
-		
-		Random rnd = new Random(System.currentTimeMillis());
-
-		// Make all of the menu options
-		ListLinked<String> burger = new ListLinked<String>();
-		ListLinked<String> cBurger = new ListLinked<String>();
-		ListLinked<String> vegan = new ListLinked<String>();
-		ListLinked<String> burgerNO = new ListLinked<String>();
-		ListLinked<String> cBurgerNO = new ListLinked<String>();
-		ListLinked<String> burgerNT = new ListLinked<String>();
 
 		// initialize all the menu options
-		burger(burger);
-		cBurger(cBurger);
-		vegan(vegan);
-		burgerNO(burgerNO);
-		cBurgerNO(cBurgerNO);
-		burgerNT(burgerNT);
+		burger();
+		cBurger();
+		vegan();
+		burgerNO();
+		cBurgerNO();
+		burgerNT();
 
-		// make the stacks for all of the food. The saved integer is the expiration
-		// date.
-		StackLinked<Integer> bun = new StackLinked<Integer>();
-		StackLinked<Integer> patty = new StackLinked<Integer>();
-		StackLinked<Integer> lettuce = new StackLinked<Integer>();
-		StackLinked<Integer> tomato = new StackLinked<Integer>();
-		StackLinked<Integer> onion = new StackLinked<Integer>();
-		StackLinked<Integer> cheese = new StackLinked<Integer>();
+		deliver();
 
+		QueueFixedSize<Integer> customers = new QueueFixedSize<Integer>(50);
+		DictionaryLinked<Integer, Integer> custDict = new DictionaryLinked<Integer, Integer>();
+
+		while (date <= 1231) // only runs till the end of December
+		{
+			if (delivery == date) {
+				deliver();
+			}
+
+			hour = 10; // start time for the new day
+			customerNum = 1; // first customer for the new day
+			foodLost.clearAll(); // clear food lost for the new day
+			itemsOrdered.clearAll(); // clear what items ordered for the new day
+			custDict.clear(); // clear the customer dictionary for the new day
+
+			while (hour <= 19) // only open from 1000 - 1900;
+			{
+				line = 1 + rnd.nextInt(100); // how many customers are showing up that hour ( 1-100)
+				if (line > 50) // the queue can only hold 50 people, anyone over 50 is a walk away. adds the
+								// excess to the lost customer list and caps at 50.
+				{
+					custLost += line - 50;
+					line = 50;
+				}
+
+				for (int i = 0; i < line; i++) // add customers and their order number to the queue
+				{
+					//System.out.println(i);
+					customers.enqueue(1 + rnd.nextInt(6));
+				}
+
+				while (!customers.isEmpty()) // empty the queue/customers ordering
+				{
+					try {
+						orderNum = customers.dequeue();
+					} catch (EmptyQueueException e) {
+						e.printStackTrace();
+					}
+					itemsOrdered.increment(orderNum);
+					custDict.add(customerNum, orderNum);
+					customerNum++;
+					 switch (orderNum)
+					 {
+					 case 1:
+						 bun.pop();
+						 patty.pop();
+						 lettuce.pop();
+						 tomato.pop();
+						 onion.pop();
+						 break;
+					 case 2:
+						 cheese.pop();
+						 bun.pop();
+						 patty.pop();
+						 lettuce.pop();
+						 tomato.pop();
+						 onion.pop();
+						 break;
+					 case 3:
+						 lettuce.pop();
+						 lettuce.pop(); // GOT EMPTY STACK EXCEPTION NEED TO MAKE CUSTOMERS GO AWAY WHEN SOMETHING THEY ORDERED ISNT AVAILABLE
+						 tomato.pop();
+						 onion.pop();
+						 break;
+					 case 4:
+						 bun.pop();
+						 patty.pop();
+						 lettuce.pop();
+						 tomato.pop();
+						 break;
+					 case 5:
+						 cheese.pop();
+						 bun.pop();
+						 patty.pop();
+						 lettuce.pop();
+						 tomato.pop();
+						 break;
+					 case 6:
+						 bun.pop();
+						 patty.pop();
+						 lettuce.pop();
+						 onion.pop();
+						 break;
+					 }
+				}
+				hour++;
+			}
+			System.out.println("Lost customer: " + custLost);
+			
+			System.out.println("Buns wasted: " + foodLost.get(1));
+			System.out.println("Patties wasted: " + foodLost.get(2));
+			System.out.println("Lettuce wasted: " + foodLost.get(3));
+			System.out.println("Tomatoes wasted: " + foodLost.get(4));
+			System.out.println("Onions wasted: " + foodLost.get(5));
+			System.out.println("Cheese wasted: " + foodLost.get(6));
+			
+			System.out.println("#1's ordered: " + itemsOrdered.get(1));
+			System.out.println("#2's ordered: " + itemsOrdered.get(2));
+			System.out.println("#3's ordered: " + itemsOrdered.get(3));
+			System.out.println("#4's ordered: " + itemsOrdered.get(4));
+			System.out.println("#5's ordered: " + itemsOrdered.get(5));
+			System.out.println("#6's ordered: " + itemsOrdered.get(6));
+			
+			for(int i =1; i <= custDict.getSize(); i++)
+			{
+				System.out.println("Customer " + i + " -> #" + custDict.getValue(i));
+			}
+			date++;
+		}
+	}
+
+	private static void deliver() {
+		StackLinked<Integer> tBun = new StackLinked<Integer>();
+		StackLinked<Integer> tPatty = new StackLinked<Integer>();
+		StackLinked<Integer> tLettuce = new StackLinked<Integer>();
+		StackLinked<Integer> tTomato = new StackLinked<Integer>();
+		StackLinked<Integer> tOnion = new StackLinked<Integer>();
+		StackLinked<Integer> tCheese = new StackLinked<Integer>();
+
+		// Move all current inventory to a new stack
+
+		while (!bun.isEmpty()) {
+			tBun.push(bun.pop());
+		}
+		while (!patty.isEmpty()) {
+			tPatty.push(patty.pop());
+		}
+		while (!lettuce.isEmpty()) {
+			tLettuce.push(lettuce.pop());
+		}
+		while (!tomato.isEmpty()) {
+			tTomato.push(tomato.pop());
+		}
+		while (!onion.isEmpty()) {
+			tOnion.push(onion.pop());
+		}
+		while (!cheese.isEmpty()) {
+			tCheese.push(cheese.pop());
+		}
+
+		// add new, fresh inventory
 		delivery = rnd.nextInt(4) + date; // when the next delivery date will be.
 
 		for (int i = 0; i < rnd.nextInt(300) + 700; i++) // adds between 700-1000 items of randomized food tot he stacks
@@ -105,47 +241,48 @@ public class Main {
 				System.out.println("ERROR IN DELIVERY SWITCH STATEMENT!!!");
 			}
 		}
-		
-		QueueFixedSize<Integer> customers = new QueueFixedSize<Integer>(50);
-		
-		while (date <= 1231) //only runs till the end of December
-		{
-			hour = 10;
-			customerNum = 1;
-			foodLost.clearAll();
-			itemsOrdered.clearAll();
-			
-			while (hour <= 19) //only open from 1000 - 1900;
-			{
-				line = 1 + rnd.nextInt(100); // how many customers are showing up that hour ( 1-100)
-				if (line > 50) // the queue can only hold 50 people, anyone over 50 is a walk away. adds the excess to the lost customer list and caps at 50.
-				{
-					custLost += line - 50;
-					line = 50;
-				}
-				
-				for (int i = 0; i < line; i++) //add customers and their order number to the queue
-				{
-						customers.enqueue(1 + rnd.nextInt(6));
-				}
-				
-				while(!customers.isEmpty()) // empty the queue/customers ordering
-				{
-					try {
-						orderNum = customers.dequeue();
-					} catch (EmptyQueueException e) {
-						e.printStackTrace();
-					}
-					itemsOrdered.increment(orderNum);
-				}
-				
-				hour ++;
-			}
-			date++;
+
+		// Move all the old inventory back to the stack while discarding the expired
+		// food and incrementing the corresponding counter
+		while (!tBun.isEmpty()) {
+			if (tBun.peek() <= date)
+				bun.push(tBun.pop());
+			else
+				foodLost.increment(1);
+		}
+		while (!tPatty.isEmpty()) {
+			if (tPatty.peek() <= date)
+				patty.push(tPatty.pop());
+			else
+				foodLost.increment(2);
+		}
+		while (!tLettuce.isEmpty()) {
+			if (tLettuce.peek() <= date)
+				lettuce.push(tLettuce.pop());
+			else
+				foodLost.increment(3);
+		}
+		while (!tTomato.isEmpty()) {
+			if (tTomato.peek() <= date)
+				tomato.push(tTomato.pop());
+			else
+				foodLost.increment(4);
+		}
+		while (!tOnion.isEmpty()) {
+			if (tOnion.peek() <= date)
+				onion.push(tOnion.pop());
+			else
+				foodLost.increment(5);
+		}
+		while (!tCheese.isEmpty()) {
+			if (tCheese.peek() <= date)
+				cheese.push(tCheese.pop());
+			else
+				foodLost.increment(6);
 		}
 	}
 
-	private static void burger(ListLinked<String> burger) {
+	private static void burger() {
 		burger.add("bun");
 		burger.add("patty");
 		burger.add("lettuce");
@@ -153,7 +290,7 @@ public class Main {
 		burger.add("onion");
 	}
 
-	private static void cBurger(ListLinked<String> cBurger) {
+	private static void cBurger() {
 		cBurger.add("cheese");
 		cBurger.add("bun");
 		cBurger.add("patty");
@@ -162,21 +299,21 @@ public class Main {
 		cBurger.add("onion");
 	}
 
-	private static void vegan(ListLinked<String> vegan) {
+	private static void vegan() {
 		vegan.add("lettuce");
 		vegan.add("lettuce");
 		vegan.add("tomato");
 		vegan.add("onion");
 	}
 
-	private static void burgerNO(ListLinked<String> burgerNO) {
+	private static void burgerNO() {
 		burgerNO.add("bun");
 		burgerNO.add("patty");
 		burgerNO.add("lettuce");
 		burgerNO.add("tomato");
 	}
 
-	private static void cBurgerNO(ListLinked<String> cBurgerNO) {
+	private static void cBurgerNO() {
 		cBurgerNO.add("cheese");
 		cBurgerNO.add("bun");
 		cBurgerNO.add("patty");
@@ -184,7 +321,7 @@ public class Main {
 		cBurgerNO.add("tomato");
 	}
 
-	private static void burgerNT(ListLinked<String> burgerNT) {
+	private static void burgerNT() {
 		burgerNT.add("bun");
 		burgerNT.add("patty");
 		burgerNT.add("lettuce");

@@ -22,7 +22,7 @@ public interface QueueInterface<T>
 	/**  Retrieves the entry at the front of this queue.
 	   @return  The object at the front of the queue.
 	   @throws  EmptyQueueException if the queue is empty. */
-	public T getFront();
+	public T getFront() throws EmptyQueueException;
 	
 	/** Detects whether this queue is empty.
 	   @return  True if the queue is empty, or false otherwise. */
